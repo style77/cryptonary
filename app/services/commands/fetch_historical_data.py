@@ -45,7 +45,7 @@ def fetch_data(record_id, key):
     return r.json()
 
 
-def fetch_historical():
+def fetch_historical_data():
     setup_logger(current_app)
 
     # even though proxies list variable is meant to be constant
