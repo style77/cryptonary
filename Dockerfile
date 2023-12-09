@@ -10,18 +10,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml pdm.lock README.md /app/
+RUN pip install pdm
 
-WORKDIR /app/
-RUN pdm config python.use_venv False && mkdir __pypackages__ && pdm install --prod --no-lock --no-editable
+WORKDIR /pkgs
 
-COPY . /app/
+COPY pyproject.toml pdm.lock README.md /pkgs/
+
+RUN pdm config python.use_venv False \
+    && pdm install --prod
+
 
 FROM python:3.11
 
-# retrieve packages from build stage
-ENV PYTHONPATH=/app/pkgs
-COPY --from=builder /app/__pypackages__/3.8/lib /app/pkgs
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 0
 
-# set command/entrypoint, adapt to fit your needs
+COPY --from=builder /pkgs/__pypackages__/3.11/lib /pkgs
+
+WORKDIR /app
+
+COPY . /app
+
+ENV PYTHONPATH=/pkgs
+
 CMD ["python", "-m", "app"]
