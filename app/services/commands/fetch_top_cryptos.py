@@ -2,12 +2,14 @@ import requests
 
 from app.models.cryptocurrency import CryptoCurrency, CryptoCurrencyDetails
 from app.services.database import transaction
+from app.services.commands.common import setup_logger
 from flask import current_app
 
 API_URL = "https://api.coingecko.com/api/v3/coins/markets"
 
 
 def fetch_top_currencies(limit):
+    setup_logger(current_app)
     r = requests.get(API_URL, params={
         "vs_currency": "usd",
         "order": "market_cap_desc",
@@ -15,7 +17,7 @@ def fetch_top_currencies(limit):
         "page": "1",
         "sparkline": "false",
         "locale": "en",
-        "x_cg_demo_api_key": current_app.config["COINGECKO_API_KEY"]
+        "x_cg_demo_api_key": current_app.config["COINGECKO_API_KEYS"][0]
     })
     data = r.json()
 
