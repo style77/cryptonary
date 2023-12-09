@@ -69,7 +69,7 @@ class HistoricalData:
     currency_id = db.Column(
         db.String, db.ForeignKey("cryptocurrencies.id", ondelete="CASCADE")
     )
-    timestamp = db.Column(db.DateTime, nullable=False, unique=True)
+    timestamp = db.Column(db.DateTime, nullable=False)  # MAKE THAT DATE WITHOUT HOUR
     price = db.Column(db.Numeric(scale=2), nullable=False)
 
     def __init__(self, currency_id: str, timestamp: int, price: float):
@@ -85,10 +85,6 @@ class CryptoCurrencyHistoricalPrice(HistoricalData, db.Model):
         "CryptoCurrency", back_populates="historical_data", cascade="all, delete"
     )
 
-    __table_args__ = (
-        UniqueConstraint("currency_id", "timestamp", name="uq_historical_currency_timestamp"),
-    )
-
     def __init__(self, currency_id: str, timestamp: int, price: float):
         super().__init__(currency_id, timestamp, price)
 
@@ -98,10 +94,6 @@ class CryptoCurrencyForecastedPrice(HistoricalData, db.Model):
 
     currency = db.relationship(
         "CryptoCurrency", back_populates="forecasted_data", cascade="all, delete"
-    )
-
-    __table_args__ = (
-        UniqueConstraint("currency_id", "timestamp", name="uq_forecasted_currency_timestamp"),
     )
 
     def __init__(self, currency_id: str, timestamp: int, price: float):
