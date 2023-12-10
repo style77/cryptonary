@@ -1,6 +1,8 @@
-from app.services.database import db
-from sqlalchemy import UniqueConstraint, Index
 from datetime import date as Date
+
+from sqlalchemy import Index, UniqueConstraint
+
+from app.services.database import db
 
 
 class CryptoCurrencyDetails(db.Model):
@@ -77,6 +79,13 @@ class HistoricalData:
         self.currency_id = currency_id
         self.date = date
         self.price = price
+
+    def as_dict(self):
+        return {
+            "currency_id": self.currency_id,
+            "date": self.date.strftime('%Y-%m-%d'),
+            "price": float(self.price)
+        }
 
 
 class CryptoCurrencyHistoricalPrice(HistoricalData, db.Model):
