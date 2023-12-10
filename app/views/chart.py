@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, render_template, current_app
 from jinja2 import TemplateNotFound
 from sqlalchemy import asc, or_
 
@@ -66,6 +66,7 @@ def chart(crypto: str):
             cryptocurrency=crypto,
             historical_data=historical_data,
             forecasted_data=forecasted_data,
+            resolution=current_app.config.get("RESOLUTION", 7),
         )
     except TemplateNotFound:
         abort(404)

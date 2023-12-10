@@ -6,62 +6,81 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
   </head>
   <body>
-    <span style="font-size: 12px;">Historical and Forecasted Prices for {{ cryptocurrency.name }}</span>
-    <canvas id="cryptoChart" width="800" height="400"></canvas>
+    <canvas id="chart-{{ cryptocurrency.symbol }}" width="800" height="400"></canvas>
 
     <script>
-        const historicalData = {{ historical_data | tojson }};
-        const forecastedData = {{ forecasted_data | tojson }};
-
-        const historicalPrices = historicalData.map(data => ({ x: new Date(data.date), y: data.price }));
-        const forecastedPrices = forecastedData.map(data => ({ x: new Date(data.date), y: data.price }));
-
-        const ctx = document.getElementById('cryptoChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [
-                    {
+        function reduceDataResolution(data, resolution) {
+            let reducedData = [];
+        
+            for (let i = 0; i < data.length; i += resolution) {
+                let chunk = data.slice(i, i + resolution);
+                let averagePrice = chunk.reduce((sum, point) => sum + point.price, 0) / chunk.length;
+                
+                let parseDate = (dateStr) => {
+                    let [year, month, day] = dateStr.split('-').map(Number);
+                    return new Date(year, month - 1, day);
+                };
+        
+                let middleDate = parseDate(chunk[0].date);
+        
+                reducedData.push({ date: middleDate, price: averagePrice });
+            }
+        
+            return reducedData;
+        }
+        
+        function drawChart() {
+            let reducedHistoricalData = reduceDataResolution({{ historical_data | tojson }}, {{ resolution }});
+            let reducedForecastedData = reduceDataResolution({{ forecasted_data | tojson }}, {{ resolution }});
+            const historicalPrices = reducedHistoricalData.map(data => ({ x: new Date(data.date), y: data.price }));
+            const forecastedPrices = reducedForecastedData.map(data => ({ x: new Date(data.date), y: data.price }));
+            const ctx = document.getElementById('chart-{{ cryptocurrency.symbol }}').getContext('2d');
+    
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
                         label: 'Historical Prices',
                         data: historicalPrices,
                         fill: false,
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2
-                    },
-                    {
+                    }, {
                         label: 'Forecasted Prices',
                         data: forecastedPrices,
                         fill: false,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
                         },
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Price'
-                        },
-                        ticks: {
-                            beginAtZero: true
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price'
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
+        
+        drawChart();
     </script>
   </body>
 </html>
