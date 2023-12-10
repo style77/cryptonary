@@ -3,7 +3,7 @@ from flask import Flask
 from app.cli import crypto_cli
 from app.services.database import db
 from app.views.urls import views
-from app.utils import format_currency
+from app.utils import format_number
 
 
 def create_app():
@@ -15,7 +15,7 @@ def create_app():
 
     db.init_app(app)
 
-    app.template_filter("format_currency")(lambda value: format_currency(value))
+    app.template_filter("format_number")(lambda value: format_number(value))
 
     with app.app_context():
         # if app.config["DEBUG"]:
