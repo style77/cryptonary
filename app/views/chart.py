@@ -38,8 +38,6 @@ def fetch_data(crypto: CryptoCurrency):
         last_date = historical_data[-1].date
         historical_data = [row.as_dict() for row in historical_data]
 
-    print(last_date)
-
     forecasted_data = []
     if last_date:
         forecasted_data = (
@@ -61,7 +59,6 @@ def chart(crypto: str):
         abort(404)
 
     historical_data, forecasted_data = fetch_data(crypto)
-    print(historical_data, forecasted_data)
 
     try:
         return render_template(
@@ -71,5 +68,4 @@ def chart(crypto: str):
             forecasted_data=forecasted_data,
         )
     except TemplateNotFound:
-        print(12)
         abort(404)
