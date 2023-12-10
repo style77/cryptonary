@@ -1,13 +1,22 @@
 import ast
 import os
-from typing import List
 
 
 class Settings(object):
     HOST: str = "0.0.0.0"
     PORT: int = 5000
     DEBUG: bool = True
-    PROXIES: List[str] = []
+
+    RESOLUTION: int = 7
+
+    # Days to fetch historical data for
+    HISTORICAL_DAYS: int = 1095
+
+    # Days to forecast data for
+    PERIODS: int = 90
+    # "backtested" periods to show in the graph
+    PREV_PERIODS: int = 30
+
     COINGECKO_API_KEYS: str = ast.literal_eval(os.environ["COINGECKO_API_KEYS"])
 
     SQLALCHEMY_DATABASE_URI: str = (

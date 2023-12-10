@@ -13,11 +13,6 @@ from app.models.cryptocurrency import (
 from app.services.commands.common import setup_logger
 from app.services.database import db
 
-PERIODS = 90
-
-# Used for backtesting
-PREV_PERIODS = 30
-
 
 def read_historical_data(record: CryptoCurrency):
     currency_id = record.id
@@ -39,11 +34,14 @@ def forecast_data(df: pd.DataFrame):
     m = Prophet()
     m.fit(df)
 
-    future = m.make_future_dataframe(periods=PERIODS)
+    periods = current_app.config.get("PERIODS", 90)
+    prev_periods = current_app.config.get("PREV_PERIODS", 30)
+
+    future = m.make_future_dataframe(periods=periods)
 
     forecast = m.predict(future)
 
-    return forecast.tail(PREV_PERIODS + PERIODS)
+    return forecast.tail(prev_periods + periods)
 
 
 def forecast_cryptos():

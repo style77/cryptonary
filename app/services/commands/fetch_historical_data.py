@@ -17,7 +17,6 @@ API_URL = "https://api.coingecko.com/api/v3/coins/{id}/market_chart"
 # data without proxies is to do that in batch
 PER_MINUTE = 30
 INTERVAL = 61
-DAYS = 1095
 
 
 def get_key(enough_keys: bool, i: int, keys: list):
@@ -35,7 +34,7 @@ def fetch_data(record_id, key):
         API_URL.format(id=record_id),
         params={
             "vs_currency": "usd",
-            "days": DAYS,
+            "days": current_app.config.get("HISTORICAL_DAYS", 1095),
             "x_cg_demo_api_key": key,
         },
     )
