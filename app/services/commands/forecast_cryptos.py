@@ -1,15 +1,19 @@
-from typing import List
 import time
+from typing import List
+
 import pandas as pd
+from flask import current_app
 from prophet import Prophet
-from app.services.database import db
+
 from app.models.cryptocurrency import (
     CryptoCurrency,
-    CryptoCurrencyHistoricalPrice,
     CryptoCurrencyForecastedPrice,
+    CryptoCurrencyHistoricalPrice,
 )
-from flask import current_app
 from app.services.commands.common import setup_logger
+from app.services.database import db
+
+PERIODS = 90
 
 
 def read_historical_data(record: CryptoCurrency):
@@ -22,18 +26,24 @@ def read_historical_data(record: CryptoCurrency):
     data = [{"ds": entry.date, "y": entry.price} for entry in historical_data]
 
     df = pd.DataFrame(data, columns=["ds", "y"])
+    df["ds"] = pd.to_datetime(df["ds"])
+    df = df.sort_values("ds")
+
     return df
 
 
-def forecast_data(df: pd.DataFrame, periods: int = 30):
+def forecast_data(df: pd.DataFrame):
     m = Prophet()
     m.fit(df)
-    future = m.make_future_dataframe(periods=periods, include_history=False)
+
+    future = m.make_future_dataframe(periods=PERIODS, include_history=False)
+
     forecast = m.predict(future)
+
     return forecast
 
 
-def forecast_cryptos(periods: int = 30):
+def forecast_cryptos():
     setup_logger(current_app)
     records: List[CryptoCurrency] = CryptoCurrency.query.all()
     global_start_time = time.time()
@@ -44,9 +54,11 @@ def forecast_cryptos(periods: int = 30):
 
         df = read_historical_data(record)
         try:
-            future = forecast_data(df, periods)
+            future = forecast_data(df)
         except Exception as e:
-            current_app.logger.error(f"Something went wrong while forecasting data of {record.name} ({record.symbol.upper()}): {e}")
+            current_app.logger.error(
+                f"Something went wrong while forecasting data of {record.name} ({record.symbol.upper()}): {e}"
+            )
             continue
 
         currency_id = record.id
@@ -79,11 +91,12 @@ def forecast_cryptos(periods: int = 30):
                     currency_id=currency_id, date=entry["date"], price=entry["price"]
                 )
                 db.session.add(new_entry)
+
+        db.session.commit()
         current_app.logger.info(
             f"Inserted data for {record.name} ({record.symbol.upper()}) in {round(time.time() - local_start_time, 2)}s"
         )
 
-        db.session.commit()
     current_app.logger.info(
         f"Forecasted all of data in {round(time.time() - global_start_time, 2)}s"
     )
