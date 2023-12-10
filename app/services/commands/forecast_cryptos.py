@@ -1,4 +1,5 @@
 from typing import List
+import time
 import pandas as pd
 from prophet import Prophet
 from app.services.database import db
@@ -7,6 +8,8 @@ from app.models.cryptocurrency import (
     CryptoCurrencyHistoricalPrice,
     CryptoCurrencyForecastedPrice,
 )
+from flask import current_app
+from app.services.commands.common import setup_logger
 
 
 def read_historical_data(record: CryptoCurrency):
@@ -18,59 +21,69 @@ def read_historical_data(record: CryptoCurrency):
 
     data = [{"ds": entry.date, "y": entry.price} for entry in historical_data]
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data, columns=["ds", "y"])
     return df
 
 
 def forecast_data(df: pd.DataFrame, periods: int = 30):
     m = Prophet()
     m.fit(df)
-    future = m.make_future_dataframe(periods=periods)
-    return future
+    future = m.make_future_dataframe(periods=periods, include_history=False)
+    forecast = m.predict(future)
+    return forecast
 
 
 def forecast_cryptos(periods: int = 30):
+    setup_logger(current_app)
     records: List[CryptoCurrency] = CryptoCurrency.query.all()
+    global_start_time = time.time()
     for record in records:
-        df = read_historical_data(record)
-        future = forecast_data(df, periods)
+        current_app.logger.info(
+            f"Forecasting data for {record.name} ({record.symbol.upper()})"
+        )
 
-        # Get the currency id for the forecasted data
+        df = read_historical_data(record)
+        try:
+            future = forecast_data(df, periods)
+        except Exception as e:
+            current_app.logger.error(f"Something went wrong while forecasting data of {record.name} ({record.symbol.upper()}): {e}")
+            continue
+
         currency_id = record.id
 
-        # Convert future DataFrame to a list of dictionaries
         forecasted_data = [
             {"date": date, "price": price}
             for date, price in zip(future["ds"], future["yhat"])
         ]
 
-        # Check if the forecast indicates a rise in price
-        predicted_rise = all(
-            future["yhat"].diff().tail(3) > 0
-        )  # Check the last 3 data points for rising trend
+        predicted_rise = all(future["yhat"].diff().tail(3) > 0)
 
-        # Update the is_rising field in CryptoCurrency based on the prediction
         if predicted_rise:
             record.is_rising = True
+            current_app.logger.info(
+                f"Setting {record.name} ({record.symbol.upper()}) as 'rising'."
+            )
         else:
             record.is_rising = False
 
-        # Iterate through the forecasted data and update/create rows in CryptoCurrencyForecastedPrice
+        local_start_time = time.time()
         for entry in forecasted_data:
-            # Check if the entry already exists in CryptoCurrencyForecastedPrice
             existing_entry = CryptoCurrencyForecastedPrice.query.filter_by(
                 currency_id=currency_id, date=entry["date"]
             ).first()
 
             if existing_entry:
-                # If entry exists, update its price
                 existing_entry.price = entry["price"]
             else:
-                # If entry does not exist, create a new row
                 new_entry = CryptoCurrencyForecastedPrice(
                     currency_id=currency_id, date=entry["date"], price=entry["price"]
                 )
                 db.session.add(new_entry)
+        current_app.logger.info(
+            f"Inserted data for {record.name} ({record.symbol.upper()}) in {round(time.time() - local_start_time, 2)}s"
+        )
 
-        # Commit changes to the database
         db.session.commit()
+    current_app.logger.info(
+        f"Forecasted all of data in {round(time.time() - global_start_time, 2)}s"
+    )

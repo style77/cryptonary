@@ -26,4 +26,7 @@ def fetch_historical():
 
 @crypto_cli.command("forecast")
 def forecast_data():
+    """
+    Forecast data from already fetched historical data.
+    """
     return forecast_cryptos()
