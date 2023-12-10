@@ -78,7 +78,7 @@ def fetch_historical_data():
                     current_app.logger.debug(f"Inserting {record.symbol.upper()} {date}: {row[1]}")
 
                     existing_record = CryptoCurrencyHistoricalPrice.query.filter_by(
-                        currency_id=record.id, date=date
+                        currency_id=record.id, date=date, price=row[1]
                     ).first()
 
                     if existing_record:
