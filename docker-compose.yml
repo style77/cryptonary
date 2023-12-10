@@ -16,11 +16,6 @@ services:
     volumes:
       - local_pgdata:/var/lib/postgresql/data
 
-  worker:
-    build:
-      context: .
-      dockerfile: job.Dockerfile
-
   app:
     container_name: cryptonary-app
     build:
