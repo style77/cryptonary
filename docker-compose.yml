@@ -16,18 +16,10 @@ services:
     volumes:
       - local_pgdata:/var/lib/postgresql/data
 
-  # TODO: remove, it's only for development
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4_container
-    restart: always
-    ports:
-      - "8888:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: cryptonary@cryptonary.com
-      PGADMIN_DEFAULT_PASSWORD: postgres
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
+  worker:
+    build:
+      context: .
+      dockerfile: job.Dockerfile
 
   app:
     container_name: cryptonary-app
