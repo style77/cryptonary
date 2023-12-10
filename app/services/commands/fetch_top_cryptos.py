@@ -1,9 +1,9 @@
 import requests
+from flask import current_app
 
 from app.models.cryptocurrency import CryptoCurrency, CryptoCurrencyDetails
-from app.services.database import transaction
 from app.services.commands.common import setup_logger
-from flask import current_app
+from app.services.database import transaction
 
 API_URL = "https://api.coingecko.com/api/v3/coins/markets"
 

@@ -1,7 +1,8 @@
 import click
 from flask.cli import AppGroup
-from app.services.commands.fetch_top_cryptos import fetch_top_currencies
+
 from app.services.commands.fetch_historical_data import fetch_historical_data
+from app.services.commands.fetch_top_cryptos import fetch_top_currencies
 from app.services.commands.forecast_cryptos import forecast_cryptos
 
 crypto_cli = AppGroup("crypto")

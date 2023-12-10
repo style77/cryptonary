@@ -1,13 +1,15 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
 import math
-from typing import List
-import requests
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from app.models.cryptocurrency import CryptoCurrency, CryptoCurrencyHistoricalPrice
-from app.services.database import db
+from typing import List
+
+import requests
 from flask import current_app
+
+from app.models.cryptocurrency import CryptoCurrency, CryptoCurrencyHistoricalPrice
 from app.services.commands.common import setup_logger
+from app.services.database import db
 
 API_URL = "https://api.coingecko.com/api/v3/coins/{id}/market_chart"
 
@@ -31,7 +33,7 @@ def fetch_data(record_id, key):
         API_URL.format(id=record_id),
         params={
             "vs_currency": "usd",
-            "days": "max",
+            "days": "365",
             "x_cg_demo_api_key": key,
         },
     )

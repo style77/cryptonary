@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+
 from flask_sqlalchemy import SQLAlchemy
 
 from app.models.base import Base
