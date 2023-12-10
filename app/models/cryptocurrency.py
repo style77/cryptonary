@@ -1,5 +1,6 @@
 from app.services.database import db
 from sqlalchemy import UniqueConstraint, Index
+from datetime import date as Date
 
 
 class CryptoCurrencyDetails(db.Model):
@@ -69,12 +70,12 @@ class HistoricalData:
     currency_id = db.Column(
         db.String, db.ForeignKey("cryptocurrencies.id", ondelete="CASCADE")
     )
-    timestamp = db.Column(db.DateTime, nullable=False)  # MAKE THAT DATE WITHOUT HOUR
+    date = db.Column(db.Date, nullable=False)  # MAKE THAT DATE WITHOUT HOUR
     price = db.Column(db.Numeric(scale=2), nullable=False)
 
-    def __init__(self, currency_id: str, timestamp: int, price: float):
+    def __init__(self, currency_id: str, date: Date, price: float):
         self.currency_id = currency_id
-        self.timestamp = timestamp
+        self.date = date
         self.price = price
 
 
@@ -85,8 +86,8 @@ class CryptoCurrencyHistoricalPrice(HistoricalData, db.Model):
         "CryptoCurrency", back_populates="historical_data", cascade="all, delete"
     )
 
-    def __init__(self, currency_id: str, timestamp: int, price: float):
-        super().__init__(currency_id, timestamp, price)
+    def __init__(self, currency_id: str, date: Date, price: float):
+        super().__init__(currency_id, date, price)
 
 
 class CryptoCurrencyForecastedPrice(HistoricalData, db.Model):
@@ -96,5 +97,5 @@ class CryptoCurrencyForecastedPrice(HistoricalData, db.Model):
         "CryptoCurrency", back_populates="forecasted_data", cascade="all, delete"
     )
 
-    def __init__(self, currency_id: str, timestamp: int, price: float):
-        super().__init__(currency_id, timestamp, price)
+    def __init__(self, currency_id: str, date: Date, price: float):
+        super().__init__(currency_id, date, price)
