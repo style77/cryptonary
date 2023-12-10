@@ -57,7 +57,8 @@ def forecast_cryptos():
             future = forecast_data(df)
         except Exception as e:
             current_app.logger.error(
-                f"Something went wrong while forecasting data of {record.name} ({record.symbol.upper()}): {e}"
+                f"Something went wrong while forecasting data of {record.name} \
+                ({record.symbol.upper()}): {e}"
             )
             continue
 
@@ -94,7 +95,8 @@ def forecast_cryptos():
 
         db.session.commit()
         current_app.logger.info(
-            f"Inserted data for {record.name} ({record.symbol.upper()}) in {round(time.time() - local_start_time, 2)}s"
+            f"Inserted data for {record.name} ({record.symbol.upper()}) \
+            in {round(time.time() - local_start_time, 2)}s"
         )
 
     current_app.logger.info(

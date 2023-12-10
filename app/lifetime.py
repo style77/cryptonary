@@ -7,7 +7,7 @@ from app.views.urls import views
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('app.settings.Settings')
+    app.config.from_object("app.settings.Settings")
 
     for view in views:
         app.register_blueprint(view)

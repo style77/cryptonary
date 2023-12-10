@@ -10,15 +10,18 @@ API_URL = "https://api.coingecko.com/api/v3/coins/markets"
 
 def fetch_top_currencies(limit):
     setup_logger(current_app)
-    r = requests.get(API_URL, params={
-        "vs_currency": "usd",
-        "order": "market_cap_desc",
-        "per_page": limit,
-        "page": "1",
-        "sparkline": "false",
-        "locale": "en",
-        "x_cg_demo_api_key": current_app.config["COINGECKO_API_KEYS"][0]
-    })
+    r = requests.get(
+        API_URL,
+        params={
+            "vs_currency": "usd",
+            "order": "market_cap_desc",
+            "per_page": limit,
+            "page": "1",
+            "sparkline": "false",
+            "locale": "en",
+            "x_cg_demo_api_key": current_app.config["COINGECKO_API_KEYS"][0],
+        },
+    )
     data = r.json()
 
     for crypto in data:
@@ -27,7 +30,7 @@ def fetch_top_currencies(limit):
                 id=crypto["id"],
                 name=crypto["name"],
                 symbol=crypto["symbol"],
-                image=crypto.get("image")
+                image=crypto.get("image"),
             )
             session.add(currency)
 
@@ -36,7 +39,7 @@ def fetch_top_currencies(limit):
                 market_cap_rank=crypto["market_cap_rank"],
                 circulating_supply=crypto["circulating_supply"],
                 max_supply=crypto["max_supply"],
-                currency_id=currency.id
+                currency_id=currency.id,
             )
 
             session.add(details)

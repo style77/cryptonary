@@ -1,7 +1,5 @@
 from datetime import date as Date
 
-from sqlalchemy import Index, UniqueConstraint
-
 from app.services.database import db
 
 
@@ -83,8 +81,8 @@ class HistoricalData:
     def as_dict(self):
         return {
             "currency_id": self.currency_id,
-            "date": self.date.strftime('%Y-%m-%d'),
-            "price": float(self.price)
+            "date": self.date.strftime("%Y-%m-%d"),
+            "price": float(self.price),
         }
 
 

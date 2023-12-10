@@ -13,7 +13,8 @@ from app.services.database import db
 
 API_URL = "https://api.coingecko.com/api/v3/coins/{id}/market_chart"
 
-# Since CoinGecko got 30/min api cooldown, the only way to fetch data without proxies is to do that in batch
+# Since CoinGecko got 30/min api cooldown, the only way to fetch
+# data without proxies is to do that in batch
 PER_MINUTE = 30
 INTERVAL = 61
 
@@ -39,7 +40,9 @@ def fetch_data(record_id, key):
     )
 
     if r.status_code == 429:
-        current_app.logger.warning(f"429 interuppted fetching data. Sleeping {INTERVAL} seconds.")
+        current_app.logger.warning(
+            f"429 interuppted fetching data. Sleeping {INTERVAL} seconds."
+        )
         time.sleep(INTERVAL)
         return fetch_data(record_id, key)
 
@@ -77,14 +80,19 @@ def fetch_historical_data():
             with db.session.begin():
                 for row in reversed(data["prices"]):
                     date = datetime.fromtimestamp(row[0] / 1000).date()
-                    current_app.logger.debug(f"Inserting {record.symbol.upper()} {date}: {row[1]}")
+                    current_app.logger.debug(
+                        f"Inserting {record.symbol.upper()} {date}: {row[1]}"
+                    )
 
                     existing_record = CryptoCurrencyHistoricalPrice.query.filter_by(
                         currency_id=record.id, date=date, price=row[1]
                     ).first()
 
                     if existing_record:
-                        current_app.logger.warning(f"Skipping {record.symbol.upper()}, record for {date} already exists")
+                        current_app.logger.warning(
+                            f"Skipping {record.symbol.upper()}, record \
+                            for {date} already exists"
+                        )
                         skipped = True
                         break
 
@@ -100,17 +108,22 @@ def fetch_historical_data():
                 last_date = datetime.fromtimestamp(data["prices"][-1][0] / 1000).date()
                 if not skipped:
                     current_app.logger.info(
-                        f"Inserted {i} prices for {record.name} ({record.symbol.upper()}) from {first_date} to {last_date}"
+                        f"Inserted {i} prices for {record.name} \
+                        ({record.symbol.upper()}) from {first_date} to {last_date}"
                     )
                     current_app.logger.info(
-                        f"Inserted {record.symbol} in {round(time.time() - local_start_time, 2)}s"
+                        f"Inserted {record.symbol} in \
+                        {round(time.time() - local_start_time, 2)}s"
                     )
         finally:
             db.session.commit()
             db.session.close()
 
     with ThreadPoolExecutor(max_workers=5) as executor:  # Adjust max_workers as needed
-        future_to_record = {executor.submit(process_record, current_app.app_context(), record): record for record in records}
+        future_to_record = {
+            executor.submit(process_record, current_app.app_context(), record): record
+            for record in records
+        }
 
         for future in as_completed(future_to_record):
             _ = future_to_record[future]

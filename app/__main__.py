@@ -10,9 +10,7 @@ def main():
     app.logger.setLevel(logging.DEBUG if debug else logging.INFO)
     logging.getLogger().setLevel(logging.DEBUG if debug else logging.INFO)
 
-    app.run(host=app.config.get("HOST"),
-            port=app.config.get("PORT"),
-            debug=debug)
+    app.run(host=app.config.get("HOST"), port=app.config.get("PORT"), debug=debug)
 
 
 if __name__ == "__main__":
