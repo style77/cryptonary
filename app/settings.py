@@ -13,3 +13,5 @@ class Settings(object):
     SQLALCHEMY_DATABASE_URI: str = (
         "postgresql://postgres:postgres@cryptonary-db:5432/cryptonary"
     )
+    SQLALCHEMY_MAX_OVERFLOW: int = 120
+    SQLALCHEMY_POOL_SIZE: int = 30
