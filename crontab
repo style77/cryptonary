@@ -1,1 +1,1 @@
-5 12 * * * root /root/job.sh >> /var/log/cron.log 2>&1
+5 12 * * * root /app/job.sh >> /var/log/cron.log 2>&1
