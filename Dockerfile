@@ -33,4 +33,10 @@ COPY . /app
 
 ENV PYTHONPATH=/pkgs
 
-CMD ["python", "-m", "app"]
+RUN pip install gunicorn flask
+
+RUN chmod +x /app/job.sh
+
+EXPOSE 8000
+
+CMD ["python -m gunicorn -b 0.0.0.0:8000 app.wsgi:app"]
