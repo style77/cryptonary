@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, render_template
 from jinja2 import TemplateNotFound
+
 from app.models.cryptocurrency import CryptoCurrency
 
 home_page = Blueprint("home", __name__, template_folder="templates")

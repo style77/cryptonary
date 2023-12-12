@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, render_template, current_app
+from flask import Blueprint, abort, current_app, render_template
 from jinja2 import TemplateNotFound
 from sqlalchemy import asc, or_
 

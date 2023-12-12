@@ -2,8 +2,8 @@ from flask import Flask
 
 from app.cli import crypto_cli
 from app.services.database import db
-from app.views.urls import views
 from app.utils import format_number
+from app.views.urls import views
 
 
 def create_app():

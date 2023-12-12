@@ -1,4 +1,5 @@
 import logging
+
 from app.lifetime import create_app
 
 app = create_app()
