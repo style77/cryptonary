@@ -1,1 +1,1 @@
-5 12 * * * root /app/job.sh >> /var/log/cron.log 2>&1
+5 0 * * * docker exec cryptonary-app make all >> /var/log/cron.log 2>&1
