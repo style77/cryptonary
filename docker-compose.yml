@@ -1,4 +1,4 @@
-version: '3.0.1'
+version: '3.8'
 
 services:
   db:
@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "postgres"
       POSTGRES_DB: "cryptonary"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,16 +33,6 @@ services:
       - .env
     environment:
       - FLASK_APP=app.lifetime
-
-  nginx:
-    build: ./nginx
-    volumes:
-      - .:/app
-    ports:
-      - 1337:80
-    depends_on:
-      - app
-
 
 volumes:
   local_pgdata:
