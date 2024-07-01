@@ -10,7 +10,7 @@ class Settings(object):
     RESOLUTION: int = 7
 
     # Days to fetch historical data for
-    HISTORICAL_DAYS: int = 1095
+    HISTORICAL_DAYS: int = 365
 
     # Days to forecast data for
     PERIODS: int = 90
