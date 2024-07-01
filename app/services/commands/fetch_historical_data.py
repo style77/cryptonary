@@ -34,7 +34,7 @@ def fetch_data(record_id, key):
         API_URL.format(id=record_id),
         params={
             "vs_currency": "usd",
-            "days": current_app.config.get("HISTORICAL_DAYS", 1095),
+            "days": current_app.config.get("HISTORICAL_DAYS", 365),
             "x_cg_demo_api_key": key,
         },
     )
